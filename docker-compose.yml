@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  sqlserver:
+    image: microsoft/mssql-server-linux:2017-latest-ubuntu
+    ports:
+      - "1433:1433"
+    build:
+      context: .
+      dockerfile: src/SQLServer/Dockerfile
+
+  catalog.api:
+    image: catalogapi:${TAG:-latest}
+    ports:
+      - "80:80"
+    build:
+      context: .
+      dockerfile: src/Services/Catalog/Catalog.API/Dockerfile
+    depends_on:
+      - sqlserver
+
+  webreact:
+    build:
+      context: .
+      dockerfile: src/Web/webreact/Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - catalog.api
